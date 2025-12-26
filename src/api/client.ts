@@ -1,10 +1,11 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+console.log('API Base URL:', baseURL)
 
 export const api = axios.create({
   baseURL,
-  timeout: 30000
+  timeout: 60000
 })
 
-export type Engine = 'pg' | 'spark' | 'neo4j' | 'opengauss' | 'hive'
+export type Engine = 'pg' | 'spark' | 'neo4j'
