@@ -4,8 +4,6 @@ import Dashboard from './pages/Dashboard'
 import Lineage from './pages/Lineage'
 import ETLSummary from './pages/ETLSummary'
 import Logs from './pages/Logs'
-import Governance from './pages/Governance'
-import Models from './pages/Models'
 
 const { Header, Content, Footer } = Layout
 
@@ -20,9 +18,7 @@ export default function App() {
               <Menu.Item key="/"><Link to="/">统计与对比</Link></Menu.Item>
               <Menu.Item key="/lineage"><Link to="/lineage">数据血缘</Link></Menu.Item>
               <Menu.Item key="/etl"><Link to="/etl">ETL总览</Link></Menu.Item>
-              <Menu.Item key="/governance"><Link to="/governance">数据治理</Link></Menu.Item>
               <Menu.Item key="/logs"><Link to="/logs">系统日志</Link></Menu.Item>
-              <Menu.Item key="/models"><Link to="/models">存储模型</Link></Menu.Item>
             </Menu>
           </div>
         </Header>
@@ -31,9 +27,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/lineage" element={<Lineage />} />
             <Route path="/etl" element={<ETLSummary />} />
-            <Route path="/governance" element={<Governance />} />
             <Route path="/logs" element={<Logs />} />
-            <Route path="/models" element={<Models />} />
           </Routes>
         </Content>
         <Footer style={{ textAlign: 'center', background: 'transparent' }}>Amazon 电影数据仓库 · 性能对比与可视化</Footer>

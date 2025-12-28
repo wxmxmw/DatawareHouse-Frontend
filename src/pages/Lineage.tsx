@@ -1,4 +1,4 @@
-import { Card, Form, Input, Row, Col } from 'antd'
+import { Card, Form, Input, Row, Col, Button } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { getLineageMovie } from '../api/lineage'
 import { useState } from 'react'
@@ -10,8 +10,20 @@ type SourceNode = { title_on_page: string }
 
 export default function Lineage() {
   const [movieId, setMovieId] = useState<string>('M1001')
-  const detail = useQuery({ queryKey: ['lineage', movieId], queryFn: () => getLineageMovie(movieId) })
+  const [searchId, setSearchId] = useState<string | undefined>(undefined)
+
+  const detail = useQuery({
+    queryKey: ['lineage', searchId],
+    queryFn: () => getLineageMovie(searchId!),
+    enabled: !!searchId
+  })
   
+  const handleSearch = () => {
+    if (movieId) {
+      setSearchId(movieId)
+    }
+  }
+
   const graphData = (() => {
     const nodes: GraphNode[] = []
     const links: GraphLink[] = []
@@ -49,7 +61,15 @@ export default function Lineage() {
       </div>
       <Form layout="inline" style={{ marginTop: 16, marginBottom: 16 }}>
         <Form.Item label="电影ID">
-          <Input value={movieId} onChange={e => setMovieId(e.target.value)} />
+          <Input 
+            value={movieId} 
+            onChange={e => setMovieId(e.target.value)} 
+            onPressEnter={handleSearch}
+            placeholder="输入后点击查询"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" onClick={handleSearch}>查询</Button>
         </Form.Item>
       </Form>
       <Row gutter={16}>
@@ -57,7 +77,9 @@ export default function Lineage() {
           <Card className="card">
             {detail.isLoading && <div>加载中</div>}
             {detail.isError && <div>错误</div>}
-            {!detail.isLoading && !detail.isError && <ReactECharts option={option} style={{ height: 600 }} />}
+            {!detail.isLoading && !detail.isError && (
+              searchId ? <ReactECharts option={option} style={{ height: 600 }} /> : <div>请点击查询按钮查看血缘关系</div>
+            )}
           </Card>
         </Col>
       </Row>

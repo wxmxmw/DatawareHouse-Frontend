@@ -16,7 +16,6 @@ export default function Logs() {
   const columns: Array<{ title: string, dataIndex: keyof LogRow }> = [
     { title: 'ID', dataIndex: 'id' },
     { title: '类型', dataIndex: 'query_type' },
-    { title: '参数', dataIndex: 'params' },
     { title: 'PG耗时', dataIndex: 'execution_time_pg' },
     { title: 'Spark耗时', dataIndex: 'execution_time_spark' },
     { title: 'Neo4j耗时', dataIndex: 'execution_time_neo4j' },

@@ -9,29 +9,33 @@ import { useState } from 'react'
 function TimeStats() {
   const [granularity, setGranularity] = useState('year')
   const [timeValue, setTimeValue] = useState<string | undefined>(undefined)
-  const [debouncedTimeValue, setDebouncedTimeValue] = useState<string | undefined>(undefined)
   const [limit, setLimit] = useState(10)
   
-  // Debounce timeValue effect
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
-    setTimeValue(val)
-  }
+  const [searchParams, setSearchParams] = useState<{
+    granularity: string
+    timeValue: string | undefined
+    limit: number
+  } | undefined>(undefined)
 
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['time', engine, granularity, debouncedTimeValue, limit],
-      queryFn: () => getMoviesByTime(engine, granularity, debouncedTimeValue, limit),
+      queryKey: ['time', engine, searchParams?.granularity, searchParams?.timeValue, searchParams?.limit],
+      queryFn: ({ signal }) => getMoviesByTime(engine, searchParams!.granularity, searchParams!.timeValue, searchParams!.limit, signal),
       staleTime: 60000,
-      enabled: !!debouncedTimeValue 
+      enabled: !!searchParams 
     }))
   })
 
-  const showExecutionTime = !!debouncedTimeValue
+  const showExecutionTime = !!searchParams
 
   const handleSearch = () => {
-    setDebouncedTimeValue(timeValue)
+    const newParams = { granularity, timeValue, limit }
+    if (JSON.stringify(newParams) !== JSON.stringify(searchParams)) {
+      setSearchParams(newParams)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
   return (
@@ -49,7 +53,7 @@ function TimeStats() {
           <Input 
             placeholder="输入后点击查询" 
             value={timeValue} 
-            onChange={handleTimeChange} 
+            onChange={e => setTimeValue(e.target.value)} 
             onPressEnter={handleSearch}
           />
         </Form.Item>
@@ -90,20 +94,27 @@ function TimeStats() {
 
 function GenresStats() {
   const [selectedGenre, setSelectedGenre] = useState<string | undefined>(undefined)
-  const [triggerQuery, setTriggerQuery] = useState(false)
+  const [searchParams, setSearchParams] = useState<string | undefined | null>(null) // null means not searched yet, undefined means search all
+  
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['genres', engine, selectedGenre],
-      queryFn: () => getGenres(engine, selectedGenre), 
+      queryKey: ['genres', engine, searchParams],
+      queryFn: ({ signal }) => getGenres(engine, searchParams === null ? undefined : searchParams, signal), 
       staleTime: 60000,
-      enabled: triggerQuery
+      enabled: searchParams !== null
     }))
   })
 
   const handleSearch = () => {
-    setTriggerQuery(true)
-    results.forEach(r => r.refetch())
+    // Treat undefined as a valid search param (all genres)
+    // We use null to indicate "not searched yet"
+    const nextParam = selectedGenre
+    if (nextParam !== searchParams) {
+      setSearchParams(nextParam)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
   const genreOptions = [
@@ -131,7 +142,7 @@ function GenresStats() {
           <Button type="primary" onClick={handleSearch}>查询</Button>
         </Form.Item>
       </Form>
-      {triggerQuery && (
+      {searchParams !== null && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={24}>
             <ExecutionTimeChart results={results} engines={engines} />
@@ -166,20 +177,24 @@ function GenresStats() {
 
 function HighRatedStats() {
   const [minScore, setMinScore] = useState(4.5)
-  const [triggerQuery, setTriggerQuery] = useState(false)
+  const [searchParams, setSearchParams] = useState<number | null>(null)
+
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['high-rated', engine, minScore],
-      queryFn: () => getHighRated(engine, minScore),
+      queryKey: ['high-rated', engine, searchParams],
+      queryFn: ({ signal }) => getHighRated(engine, searchParams!, signal),
       staleTime: 60000,
-      enabled: triggerQuery
+      enabled: searchParams !== null
     }))
   })
 
   const handleSearch = () => {
-    setTriggerQuery(true)
-    results.forEach(r => r.refetch())
+    if (minScore !== searchParams) {
+      setSearchParams(minScore)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
   return (
@@ -192,7 +207,7 @@ function HighRatedStats() {
           <Button type="primary" onClick={handleSearch}>查询</Button>
         </Form.Item>
       </Form>
-      {triggerQuery && (
+      {searchParams !== null && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={24}>
             <ExecutionTimeChart results={results} engines={engines} />
@@ -220,30 +235,45 @@ function HighRatedStats() {
   )
 }
 
+interface CollabItem {
+  person1: string
+  person2: string
+  collab_count: number
+  movies: Array<{ title: string }>
+}
+
 function CollaborationsStats() {
   const [type, setType] = useState<'actor_actor'|'director_actor'>('director_actor')
   const [minCount, setMinCount] = useState(3)
-  const [triggerQuery, setTriggerQuery] = useState(false)
+  const [searchParams, setSearchParams] = useState<{
+    type: 'actor_actor'|'director_actor'
+    minCount: number
+  } | null>(null)
+
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['collab', engine, type, minCount],
-      queryFn: () => getCollaborations(engine, type, minCount),
+      queryKey: ['collab', engine, searchParams?.type, searchParams?.minCount],
+      queryFn: ({ signal }) => getCollaborations(engine, searchParams!.type, searchParams!.minCount, signal),
       staleTime: 60000,
-      enabled: triggerQuery
+      enabled: !!searchParams
     }))
   })
 
   const handleSearch = () => {
-    setTriggerQuery(true)
-    results.forEach(r => r.refetch())
+    const newParams = { type, minCount }
+    if (JSON.stringify(newParams) !== JSON.stringify(searchParams)) {
+      setSearchParams(newParams)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
         <Form.Item label="类型">
-          <Select value={type} onChange={v => setType(v)} options={[
+          <Select value={type} onChange={setType} options={[
             { value: 'actor_actor', label: '演员-演员' },
             { value: 'director_actor', label: '导演-演员' }
           ]} />
@@ -255,7 +285,7 @@ function CollaborationsStats() {
           <Button type="primary" onClick={handleSearch}>查询</Button>
         </Form.Item>
       </Form>
-      {triggerQuery && (
+      {!!searchParams && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={24}>
             <ExecutionTimeChart results={results} engines={engines} />
@@ -274,6 +304,28 @@ function CollaborationsStats() {
               xKey="collab_count"
               yKey="collab_count"
               hideChart={true}
+              customRender={(data: unknown[]) => (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  {(data as CollabItem[]).map((item, i) => (
+                    <div key={i} style={{ marginBottom: 16, borderBottom: '1px solid #f0f0f0', paddingBottom: 8 }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: 4 }}>
+                        {item.person1} & {item.person2}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
+                        合作次数: {item.collab_count}
+                      </div>
+                      <div style={{ fontSize: 12 }}>
+                        <div style={{ marginBottom: 4 }}>代表作品:</div>
+                        {(item.movies || []).map((m, j) => (
+                          <div key={j} style={{ paddingLeft: 8, marginBottom: 2 }}>
+                            • <span title={m.title}>{m.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             />
           </Col>
         ))}
@@ -284,22 +336,29 @@ function CollaborationsStats() {
 
 function VersionsStats() {
   const [title, setTitle] = useState<string | undefined>(undefined)
-  const [debouncedTitle, setDebouncedTitle] = useState<string | undefined>(undefined)
+  const [searchParams, setSearchParams] = useState<string | null>(null)
+
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['versions', engine, debouncedTitle],
-      queryFn: () => getMovieVersions(engine, debouncedTitle),
+      queryKey: ['versions', engine, searchParams],
+      queryFn: ({ signal }) => getMovieVersions(engine, searchParams!, signal),
       staleTime: 60000,
-      enabled: !!debouncedTitle
+      enabled: searchParams !== null
     }))
   })
 
   const handleSearch = () => {
-    setDebouncedTitle(title)
+    if (!title) return // Don't search if empty? Or allow empty? Assuming title is required for this one as per previous logic (enabled: !!debouncedTitle)
+    
+    if (title !== searchParams) {
+      setSearchParams(title)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
-  const showExecutionTime = !!debouncedTitle
+  const showExecutionTime = searchParams !== null
 
   return (
     <>
@@ -330,10 +389,11 @@ function VersionsStats() {
               title={engines[idx]}
               loading={r.isLoading}
               error={r.isError ? r.error : null}
-              results={(r.data?.data?.results || [])}
-              movies={(r.data?.data?.results || [])}
+              results={(r.data?.data?.movies || [])}
+              movies={(r.data?.data?.movies || [])}
               xKey="title"
               yKey="version_count"
+              totalCount={r.data?.data?.count ?? (r.data?.data?.movies || []).length}
               hideChart={true}
             />
           </Col>
@@ -345,22 +405,28 @@ function VersionsStats() {
 
 function DirectorStats() {
   const [director, setDirector] = useState<string | undefined>(undefined)
-  const [debouncedDirector, setDebouncedDirector] = useState<string | undefined>(undefined)
+  const [searchParams, setSearchParams] = useState<string | null>(null)
+
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['director-works', engine, debouncedDirector],
-      queryFn: () => getDirectorWorks(engine, debouncedDirector),
+      queryKey: ['director-works', engine, searchParams],
+      queryFn: ({ signal }) => getDirectorWorks(engine, searchParams!, signal),
       staleTime: 60000,
-      enabled: !!debouncedDirector
+      enabled: searchParams !== null
     }))
   })
 
   const handleSearch = () => {
-    setDebouncedDirector(director)
+    if (!director) return
+    if (director !== searchParams) {
+      setSearchParams(director)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
-  const showExecutionTime = !!debouncedDirector
+  const showExecutionTime = searchParams !== null
 
   return (
     <>
@@ -395,6 +461,7 @@ function DirectorStats() {
             movies={(r.data?.data?.movies || [])}
             xKey="name"
             yKey="movie_count"
+            totalCount={r.data?.data?.count ?? (r.data?.data?.movies || []).length}
             hideChart={true}
           />
         ))}
@@ -405,21 +472,27 @@ function DirectorStats() {
 
 function ActorStats() {
   const [actor, setActor] = useState<string | undefined>(undefined)
-  const [debouncedActor, setDebouncedActor] = useState<string | undefined>(undefined)
+  const [searchParams, setSearchParams] = useState<string | null>(null)
+
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['actor-works', engine, debouncedActor],
-      queryFn: () => getActorWorks(engine, debouncedActor),
+      queryKey: ['actor-works', engine, searchParams],
+      queryFn: ({ signal }) => getActorWorks(engine, searchParams!, signal),
       staleTime: 60000,
-      enabled: !!debouncedActor
+      enabled: searchParams !== null
     }))
   })
 
-  const showExecutionTime = !!debouncedActor
+  const showExecutionTime = searchParams !== null
 
   const handleSearch = () => {
-    setDebouncedActor(actor)
+    if (!actor) return
+    if (actor !== searchParams) {
+      setSearchParams(actor)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
   return (
@@ -455,7 +528,25 @@ function ActorStats() {
             movies={(r.data?.data?.movies || [])}
             xKey="name"
             yKey="count"
+            totalCount={r.data?.data?.count ?? (r.data?.data?.movies || []).length}
             hideChart={true}
+            customRender={(data: unknown[]) => {
+              const roleData = data as Array<{ name: string, role_type: string, count: number }>
+              return (
+                <div style={{ padding: '0 8px', marginBottom: 16 }}>
+                  {roleData.map((item, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+                      <span style={{ fontWeight: 500 }}>
+                        {item.role_type === 'Main Actor' ? '主演 (Main Actor)' : '参演 (Supporting)'}
+                      </span>
+                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
+                        {item.count} 部
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )
+            }}
           />
         ))}
       </div>
@@ -533,6 +624,7 @@ function ComplexFilter() {
             movies={(mutation.data?.data?.results || [])}
             xKey="title"
             yKey="score"
+            totalCount={mutation.data?.data?.count ?? (mutation.data?.data?.results || []).length}
             hideChart={true}
           />
         </Col>
@@ -546,29 +638,35 @@ function PopularCombos() {
   const [size, setSize] = useState<2|3>(2)
   const [genre, setGenre] = useState<string | undefined>(undefined)
   
-  const [querySize, setQuerySize] = useState<2|3 | undefined>(undefined)
-  const [queryGenre, setQueryGenre] = useState<string | undefined>(undefined)
+  const [searchParams, setSearchParams] = useState<{
+    size: 2|3
+    genre: string | undefined
+  } | null>(null)
 
   const engines = ['pg','spark','neo4j'] as const
   const results = useQueries({
     queries: engines.map(engine => ({
-      queryKey: ['popular-combos', engine, querySize, queryGenre],
-      queryFn: () => getPopularCombos(engine, querySize!, queryGenre),
+      queryKey: ['popular-combos', engine, searchParams?.size, searchParams?.genre],
+      queryFn: ({ signal }) => getPopularCombos(engine, searchParams!.size, searchParams!.genre, 10, signal),
       staleTime: 60000,
-      enabled: !!querySize
+      enabled: !!searchParams
     }))
   })
 
   const handleSearch = () => {
-    setQuerySize(size)
-    setQueryGenre(genre)
+    const newParams = { size, genre }
+    if (JSON.stringify(newParams) !== JSON.stringify(searchParams)) {
+      setSearchParams(newParams)
+    } else {
+      results.forEach(r => r.refetch())
+    }
   }
 
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
         <Form.Item label="组合人数">
-          <Select value={size} onChange={v => setSize(v)} options={[{value:2,label:'2人'},{value:3,label:'3人'}]} />
+          <Select value={size} onChange={setSize} options={[{value:2,label:'2人'},{value:3,label:'3人'}]} />
         </Form.Item>
         <Form.Item label="类别" style={{ width: 240 }}>
           <Select 
@@ -583,7 +681,7 @@ function PopularCombos() {
           <Button type="primary" onClick={handleSearch}>查询</Button>
         </Form.Item>
       </Form>
-      {!!querySize && (
+      {!!searchParams && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={24}>
             <ExecutionTimeChart results={results} engines={engines} />
@@ -594,15 +692,45 @@ function PopularCombos() {
         {results.map((r, idx) => (
           <Col span={8} key={idx}>
             <EnginePanel
-              title={engines[idx]}
-              loading={r.isLoading}
-              error={r.isError ? r.error : null}
-              results={(r.data?.data?.results || [])}
-              movies={undefined}
-              xKey="review_count_total"
-              yKey="review_count_total"
-              hideChart={true}
-            />
+            title={engines[idx]}
+            loading={r.isLoading}
+            error={r.isError ? r.error : null}
+            results={(r.data?.data?.results || [])}
+            movies={undefined}
+            xKey="review_count_total"
+            yKey="review_count_total"
+            hideChart={true}
+            customRender={(data: unknown[]) => {
+              const comboData = data as Array<{ combo: string[], movies: Array<{ title: string, urls: string[] }>, review_count_total: number }>
+              return (
+                <div style={{ maxHeight: 400, overflowY: 'auto', padding: '0 8px' }}>
+                  {comboData.map((item, i) => (
+                    <div key={i} style={{ marginBottom: 16, borderBottom: '1px solid #f0f0f0', paddingBottom: 8 }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: 4 }}>
+                        组合: {item.combo.join(' + ')}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
+                        总评论数: {item.review_count_total}
+                      </div>
+                      <div style={{ fontSize: 12 }}>
+                        <div style={{ marginBottom: 4 }}>关联电影:</div>
+                        {(item.movies || []).map((m, j) => (
+                          <div key={j} style={{ paddingLeft: 8, marginBottom: 4 }}>
+                            • <span style={{ fontWeight: 500 }} title={m.title}>{m.title}</span>
+                            <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+                              {(m.urls || []).slice(0, 2).map((u, k) => (
+                                <a key={k} href={u} target="_blank" rel="noreferrer" style={{ color: '#1890ff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }} title={u}>Link {k + 1}</a>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            }}
+          />
           </Col>
         ))}
       </Row>
@@ -611,6 +739,8 @@ function PopularCombos() {
 }
 
 export default function Dashboard() {
+  const [activeKey, setActiveKey] = useState('time')
+
   return (
     <div>
       <div className="hero">
@@ -619,14 +749,18 @@ export default function Dashboard() {
           <div className="hero-sub">并发对比 PostgreSQL、Spark、Neo4j 的查询结果与耗时</div>
         </div>
       </div>
-      <Tabs defaultActiveKey="time" items={[
+      <Tabs 
+        activeKey={activeKey} 
+        onChange={setActiveKey}
+        destroyInactiveTabPane={true} // Destroy inactive tabs to cancel queries
+        items={[
         { key: 'time', label: '时间统计', children: <TimeStats /> },
         { key: 'genres', label: '类别统计', children: <GenresStats /> },
         { key: 'high', label: '高评分', children: <HighRatedStats /> },
         { key: 'collab', label: '合作组合', children: <CollaborationsStats /> },
         { key: 'versions', label: '电影版本', children: <VersionsStats /> },
         { key: 'director', label: '导演作品', children: <DirectorStats /> },
-        { key: 'actor', label: '演员参演作品', children: <ActorStats /> },
+        { key: 'actor', label: '演员查询', children: <ActorStats /> },
         { key: 'complex', label: '组合筛选', children: <ComplexFilter /> },
         { key: 'popular', label: '最受关注组合', children: <PopularCombos /> }
       ]} />

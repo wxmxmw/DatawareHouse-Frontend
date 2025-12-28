@@ -2,7 +2,7 @@ import { Card, List } from 'antd'
 import ReactECharts from 'echarts-for-react'
 
 type MovieItem = { title: string, urls?: string[], positive_review_count?: number }
-type ChartDatum = Record<string, string | number>
+type ChartDatum = Record<string, string | number | unknown>
 
 export default function EnginePanel(props: {
   title: string
@@ -14,8 +14,9 @@ export default function EnginePanel(props: {
   yKey?: string
   totalCount?: number
   hideChart?: boolean
+  customRender?: (data: unknown[]) => React.ReactNode
 }) {
-  const { title, loading, error, results, movies, xKey = 'name', yKey = 'count', totalCount, hideChart } = props
+  const { title, loading, error, results, movies, xKey = 'name', yKey = 'count', totalCount, hideChart, customRender } = props
   const xData = results.map(d => String(d[xKey] ?? ''))
   const seriesData = results.map(d => Number(d[yKey] ?? 0))
   const option = {
@@ -37,6 +38,7 @@ export default function EnginePanel(props: {
           />
         )
       )}
+      {!loading && !error && customRender && customRender(results)}
       {!loading && !error && movies && movies.length > 0 && (
         <List
           size="small"
