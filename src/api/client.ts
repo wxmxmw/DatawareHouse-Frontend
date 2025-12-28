@@ -5,7 +5,7 @@ console.log('API Base URL:', baseURL)
 
 export const api = axios.create({
   baseURL,
-  timeout: 60000
+  timeout: 120000 // 2 minutes
 })
 
 export type Engine = 'pg' | 'spark' | 'neo4j'

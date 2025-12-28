@@ -28,7 +28,7 @@ export default function EnginePanel(props: {
     series: [{ type: 'bar', data: seriesData, itemStyle: { color: '#1f77b4' } }]
   }
   return (
-    <Card className="card" bodyStyle={{ padding: 12 }}>
+    <Card className="card" style={{ minWidth: 0 }} bodyStyle={{ padding: 12, overflow: 'hidden' }}>
       {loading && <div style={{ position: 'absolute', zIndex: 10, background: 'rgba(255,255,255,0.8)', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>加载中</div>}
       {error ? <div>错误</div> : (
         !hideChart && (

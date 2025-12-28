@@ -535,9 +535,9 @@ function ActorStats() {
               return (
                 <div style={{ padding: '0 8px', marginBottom: 16 }}>
                   {roleData.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <div key={i} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 8, marginBottom: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
                       <span style={{ fontWeight: 500 }}>
-                        {item.role_type === 'Main Actor' ? '主演 (Main Actor)' : '参演 (Supporting)'}
+                        {item.role_type === 'Main Actor' ? '主演 (Main Actor)' : '参演 (Supporting)'}:
                       </span>
                       <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
                         {item.count} 部
