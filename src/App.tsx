@@ -15,10 +15,10 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ fontWeight: 700, fontSize: 18, color: 'var(--primary)' }}>DataWareHouse</div>
             <Menu mode="horizontal" defaultSelectedKeys={['/']} style={{ flex: 1 }} selectable>
-              <Menu.Item key="/"><Link to="/">统计与对比</Link></Menu.Item>
-              <Menu.Item key="/lineage"><Link to="/lineage">数据血缘</Link></Menu.Item>
-              <Menu.Item key="/etl"><Link to="/etl">ETL总览</Link></Menu.Item>
-              <Menu.Item key="/logs"><Link to="/logs">系统日志</Link></Menu.Item>
+              <Menu.Item key="/"><Link to="/">Statistics and Comparison</Link></Menu.Item>
+              <Menu.Item key="/lineage"><Link to="/lineage">Data Lineage</Link></Menu.Item>
+              <Menu.Item key="/etl"><Link to="/etl">ETL Overview</Link></Menu.Item>
+              <Menu.Item key="/logs"><Link to="/logs">System Logs</Link></Menu.Item>
             </Menu>
           </div>
         </Header>
@@ -30,7 +30,7 @@ export default function App() {
             <Route path="/logs" element={<Logs />} />
           </Routes>
         </Content>
-        <Footer style={{ textAlign: 'center', background: 'transparent' }}>Amazon 电影数据仓库 · 性能对比与可视化</Footer>
+        <Footer style={{ textAlign: 'center', background: 'transparent' }}>Amazon Movie Data Warehouse · Analytics and Visualization</Footer>
       </Layout>
     </ConfigProvider>
   )

@@ -18,7 +18,7 @@ const { Text } = Typography
 export default function ETLSummary() {
   // const summary = useQuery({ queryKey: ['lineage-summary'], queryFn: () => getLineageSummary() })
   
-  // 静态报告数据 (来自 ETL处理报告.md)
+  // Figures from the course ETL report
   const reportData = {
     totalRaw: 228260,
     finalCount: 139795,
@@ -26,13 +26,13 @@ export default function ETLSummary() {
     filteredCount: 11952,
     dateCompleted: 59682,
     dateCompletedSource: [
-      { value: 92065, name: 'Amazon 原始' },
-      { value: 2518, name: 'IMDb 匹配' },
-      { value: 57164, name: '评论推断' }
+      { value: 92065, name: 'Amazon source' },
+      { value: 2518, name: 'IMDb match' },
+      { value: 57164, name: 'Review inference' }
     ]
   }
 
-  // 优先使用 API 数据，降级使用静态数据
+  // Use the report figures for this static overview
   const displayData = {
     raw: reportData.totalRaw,
     final: reportData.finalCount,
@@ -40,7 +40,7 @@ export default function ETLSummary() {
   }
 
   const funnelOption = {
-    title: { text: '数据清洗漏斗', left: 'center' },
+    title: { text: 'Data Cleaning Funnel', left: 'center' },
     tooltip: { trigger: 'item', formatter: '{b} : {c}' },
     series: [
       {
@@ -77,22 +77,22 @@ export default function ETLSummary() {
           }
         },
         data: [
-          { value: displayData.raw, name: '原始数据' },
-          { value: displayData.raw - reportData.dedupedCount, name: '去重后' },
-          { value: displayData.raw - reportData.dedupedCount - displayData.filtered, name: '内容过滤后' },
-          { value: displayData.final, name: '最终入库' }
+          { value: displayData.raw, name: 'Raw data' },
+          { value: displayData.raw - reportData.dedupedCount, name: 'After deduplication' },
+          { value: displayData.raw - reportData.dedupedCount - displayData.filtered, name: 'After content filtering' },
+          { value: displayData.final, name: 'Final records' }
         ]
       }
     ]
   }
 
   const pieOption = {
-    title: { text: '上映日期补全来源', left: 'center' },
+    title: { text: 'Release Date Sources', left: 'center' },
     tooltip: { trigger: 'item' },
     legend: { orient: 'vertical', left: 'left' },
     series: [
       {
-        name: '来源',
+        name: 'Source',
         type: 'pie',
         radius: '50%',
         data: reportData.dateCompletedSource,
@@ -111,18 +111,18 @@ export default function ETLSummary() {
     <div style={{ paddingBottom: 40 }}>
       <div className="hero">
         <div>
-          <div className="hero-title">ETL 统计总览</div>
-          <div className="hero-sub">Amazon 电影数据仓库建设报告 - 2025年12月26日</div>
+          <div className="hero-title">ETL Overview</div>
+          <div className="hero-sub">Amazon Movie Data Warehouse Report · December 26, 2025</div>
         </div>
       </div>
 
       <div style={{ padding: '0 24px', marginTop: -40 }}>
-        {/* 核心指标 */}
+        {/* Key metrics */}
         <Row gutter={16}>
           <Col span={6}>
             <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <Statistic 
-                title="原始记录数" 
+                title="Raw records"
                 value={displayData.raw} 
                 prefix={<DatabaseOutlined />} 
                 valueStyle={{ color: '#1890ff' }}
@@ -133,65 +133,65 @@ export default function ETLSummary() {
           <Col span={6}>
             <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <Statistic 
-                title="去重记录数" 
+                title="Duplicate records removed"
                 value={reportData.dedupedCount} 
                 prefix={<MergeCellsOutlined />} 
                 valueStyle={{ color: '#faad14' }}
               />
-              <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>合并率 {((reportData.dedupedCount / displayData.raw) * 100).toFixed(1)}%</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>Merge rate {((reportData.dedupedCount / displayData.raw) * 100).toFixed(1)}%</div>
             </Card>
           </Col>
           <Col span={6}>
             <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <Statistic 
-                title="日期补全" 
+                title="Release dates completed"
                 value={reportData.dateCompleted} 
                 prefix={<FieldTimeOutlined />} 
                 valueStyle={{ color: '#722ed1' }}
               />
-              <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>IMDb + Reviews 补全</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>Completed using IMDb and reviews</div>
             </Card>
           </Col>
           <Col span={6}>
             <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <Statistic 
-                title="最终入库电影" 
+                title="Movies loaded"
                 value={displayData.final} 
                 prefix={<CheckCircleOutlined />} 
                 valueStyle={{ color: '#3f8600' }}
               />
-              <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>保留率 {((displayData.final / displayData.raw) * 100).toFixed(1)}%</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>Retention rate {((displayData.final / displayData.raw) * 100).toFixed(1)}%</div>
             </Card>
           </Col>
         </Row>
 
-        {/* 处理流程 */}
-        <Card title="数据处理流程" style={{ marginTop: 24, borderRadius: 8 }}>
+        {/* Pipeline */}
+        <Card title="Data Processing Pipeline" style={{ marginTop: 24, borderRadius: 8 }}>
           <Steps
             current={8}
             labelPlacement="vertical"
             items={[
-              { title: '原始数据', description: '228,260 条', icon: <DatabaseOutlined /> },
-              { title: '去重处理', description: '151,747 条', icon: <MergeCellsOutlined /> },
-              { title: '内容过滤', description: '过滤非电影', icon: <FilterOutlined /> },
-              { title: '质量筛选', description: '≥3 有效字段', icon: <SafetyCertificateOutlined /> },
-              { title: '数据补全', description: 'IMDb + 评论', icon: <FieldTimeOutlined /> },
-              { title: '格式统一', description: '日期标准化', icon: <CalendarOutlined /> },
-              { title: '人名标准化', description: '1,663 映射', icon: <UserOutlined /> },
-              { title: '最终入库', description: '139,795 条', icon: <CheckCircleOutlined /> },
+              { title: 'Raw data', description: '228,260 records', icon: <DatabaseOutlined /> },
+              { title: 'Deduplication', description: '151,747 records', icon: <MergeCellsOutlined /> },
+              { title: 'Content filtering', description: 'Remove non-movies', icon: <FilterOutlined /> },
+              { title: 'Quality screening', description: '≥3 valid fields', icon: <SafetyCertificateOutlined /> },
+              { title: 'Data enrichment', description: 'IMDb + reviews', icon: <FieldTimeOutlined /> },
+              { title: 'Format normalization', description: 'Normalize dates', icon: <CalendarOutlined /> },
+              { title: 'Name normalization', description: '1,663 mappings', icon: <UserOutlined /> },
+              { title: 'Final records', description: '139,795 records', icon: <CheckCircleOutlined /> },
             ]}
           />
         </Card>
 
-        {/* 图表分析 */}
+        {/* Charts */}
         <Row gutter={24} style={{ marginTop: 24 }}>
           <Col span={12}>
-            <Card title="数据清洗漏斗" bordered={false} style={{ height: '100%' }}>
+            <Card title="Data Cleaning Funnel" bordered={false} style={{ height: '100%' }}>
               <ReactECharts option={funnelOption} style={{ height: 350 }} />
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="数据补全策略" bordered={false} style={{ height: '100%' }}>
+            <Card title="Data Enrichment Strategy" bordered={false} style={{ height: '100%' }}>
               <Row>
                 <Col span={24}>
                   <ReactECharts option={pieOption} style={{ height: 250 }} />
@@ -199,11 +199,11 @@ export default function ETLSummary() {
               </Row>
               <Divider dashed />
               <div style={{ padding: '0 12px' }}>
-                <Text strong>三层补全机制：</Text>
+                <Text strong>Three-stage enrichment:</Text>
                 <ul>
-                  <li><Text type="secondary">第一层 (Amazon):</Text> 优先使用原始数据的发布日期。</li>
-                  <li><Text type="secondary">第二层 (IMDb):</Text> 通过标题和时长匹配 IMDb 数据库 (tt_id)。</li>
-                  <li><Text type="secondary">第三层 (Reviews):</Text> 使用最早评论时间推断可能的上映日期。</li>
+                  <li><Text type="secondary">Stage 1 (Amazon):</Text> Use the source release date when available.</li>
+                  <li><Text type="secondary">Stage 2 (IMDb):</Text> Match IMDb records by title and runtime (tt_id).</li>
+                  <li><Text type="secondary">Stage 3 (Reviews):</Text> Estimate the release date from the earliest review.</li>
                 </ul>
               </div>
             </Card>

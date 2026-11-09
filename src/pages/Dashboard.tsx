@@ -41,27 +41,27 @@ function TimeStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="粒度">
+        <Form.Item label="Granularity">
           <Select value={granularity} onChange={setGranularity} options={[
-            { value: 'year', label: '年' },
-            { value: 'month', label: '月' },
-            { value: 'quarter', label: '季度' },
-            { value: 'day_of_week', label: '星期' }
+            { value: 'year', label: 'Year' },
+            { value: 'month', label: 'Month' },
+            { value: 'quarter', label: 'Quarter' },
+            { value: 'day_of_week', label: 'Day of week' }
           ]} />
         </Form.Item>
-        <Form.Item label="时间">
+        <Form.Item label="Time">
           <Input 
-            placeholder="输入后点击查询" 
+            placeholder="Enter a value, then search"
             value={timeValue} 
             onChange={e => setTimeValue(e.target.value)} 
             onPressEnter={handleSearch}
           />
         </Form.Item>
-        <Form.Item label="条数">
+        <Form.Item label="Limit">
           <Select value={limit} onChange={setLimit} options={[10,20,50].map(v => ({ value: v, label: v }))} />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {showExecutionTime && (
@@ -128,10 +128,10 @@ function GenresStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="筛选类别">
+        <Form.Item label="Filter by genre">
           <Select 
             allowClear 
-            placeholder="全部" 
+            placeholder="All genres"
             style={{ width: 240 }}
             value={selectedGenre} 
             onChange={setSelectedGenre} 
@@ -139,7 +139,7 @@ function GenresStats() {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {searchParams !== null && (
@@ -200,11 +200,11 @@ function HighRatedStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="最低评分 (0.0-5.0)">
+        <Form.Item label="Minimum rating (0.0–5.0)">
           <Slider min={0} max={5} step={0.1} value={minScore} onChange={(v) => setMinScore(Number(v))} style={{ width: 240 }} />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {searchParams !== null && (
@@ -272,17 +272,17 @@ function CollaborationsStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="类型">
+        <Form.Item label="Type">
           <Select value={type} onChange={setType} options={[
-            { value: 'actor_actor', label: '演员-演员' },
-            { value: 'director_actor', label: '导演-演员' }
+            { value: 'actor_actor', label: 'Actor–actor' },
+            { value: 'director_actor', label: 'Director–actor' }
           ]} />
         </Form.Item>
-        <Form.Item label="最少合作">
+        <Form.Item label="Minimum collaborations">
           <Select value={minCount} onChange={setMinCount} options={[3,5,8].map(v => ({ value: v, label: v }))} />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {!!searchParams && (
@@ -312,10 +312,10 @@ function CollaborationsStats() {
                         {item.person1} & {item.person2}
                       </div>
                       <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
-                        合作次数: {item.collab_count}
+                        Collaborations: {item.collab_count}
                       </div>
                       <div style={{ fontSize: 12 }}>
-                        <div style={{ marginBottom: 4 }}>代表作品:</div>
+                        <div style={{ marginBottom: 4 }}>Representative movies:</div>
                         {(item.movies || []).map((m, j) => (
                           <div key={j} style={{ paddingLeft: 8, marginBottom: 2 }}>
                             • <span title={m.title}>{m.title}</span>
@@ -363,16 +363,16 @@ function VersionsStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="片名">
+        <Form.Item label="Movie title">
           <Input 
-            placeholder="输入后点击查询" 
+            placeholder="Enter a value, then search"
             value={title} 
             onChange={e => setTitle(e.target.value)} 
             onPressEnter={handleSearch}
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {showExecutionTime && (
@@ -431,16 +431,16 @@ function DirectorStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="导演">
+        <Form.Item label="Director">
           <Input 
-            placeholder="输入后点击查询" 
+            placeholder="Enter a value, then search"
             value={director} 
             onChange={e => setDirector(e.target.value)} 
             onPressEnter={handleSearch}
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {showExecutionTime && (
@@ -498,16 +498,16 @@ function ActorStats() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="演员">
+        <Form.Item label="Actor">
           <Input 
-            placeholder="输入后点击查询" 
+            placeholder="Enter a value, then search"
             value={actor} 
             onChange={e => setActor(e.target.value)} 
             onPressEnter={handleSearch}
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {showExecutionTime && (
@@ -537,10 +537,10 @@ function ActorStats() {
                   {roleData.map((item, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 8, marginBottom: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
                       <span style={{ fontWeight: 500 }}>
-                        {item.role_type === 'Main Actor' ? '主演 (Main Actor)' : '参演 (Supporting)'}:
+                        {item.role_type === 'Main Actor' ? 'Main actor' : 'Supporting actor'}:
                       </span>
                       <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
-                        {item.count} 部
+                        {item.count} movies
                       </span>
                     </div>
                   ))}
@@ -575,7 +575,7 @@ function ComplexFilter() {
   })
 
   const executionTimeOption = {
-    title: { text: '查询耗时 (ms)' },
+    title: { text: 'Query Execution Time (ms)' },
     tooltip: { trigger: 'axis' },
     xAxis: { type: 'category', data: [mutation.variables?.engine || 'engine'] },
     yAxis: { type: 'value', name: 'ms' },
@@ -590,20 +590,20 @@ function ComplexFilter() {
   return (
     <>
       <Form form={form} layout="inline" onFinish={values => mutation.mutate(values)} style={{ marginBottom: 12 }}>
-        <Form.Item name="engine" label="查询引擎" initialValue="pg">
+        <Form.Item name="engine" label="Query engine" initialValue="pg">
           <Select options={[{value:'pg',label:'pg'},{value:'spark',label:'spark'},{value:'neo4j',label:'neo4j'}]} />
         </Form.Item>
-        <Form.Item name="year" label="年份"><Input placeholder="如 2005" /></Form.Item>
-        <Form.Item name="genre" label="类别" style={{ width: 200 }}>
-          <Select allowClear placeholder="选择类别" options={genreOptions} />
+        <Form.Item name="year" label="Year"><Input placeholder="e.g. 2005" /></Form.Item>
+        <Form.Item name="genre" label="Genre" style={{ width: 200 }}>
+          <Select allowClear placeholder="Select a genre" options={genreOptions} />
         </Form.Item>
-        <Form.Item name="min_score" label="最低评分">
+        <Form.Item name="min_score" label="Minimum rating">
           <InputNumber min={0} max={5} step={0.1} />
         </Form.Item>
-        <Form.Item name="director" label="导演"><Input placeholder="如 Spielberg" /></Form.Item>
-        <Form.Item name="actor" label="演员"><Input placeholder="如 Tom Hanks" /></Form.Item>
-        <Form.Item name="limit" label="结果数量" initialValue={10}><InputNumber placeholder="10" /></Form.Item>
-        <Button type="primary" htmlType="submit">查询</Button>
+        <Form.Item name="director" label="Director"><Input placeholder="e.g. Spielberg" /></Form.Item>
+        <Form.Item name="actor" label="Actor"><Input placeholder="e.g. Tom Hanks" /></Form.Item>
+        <Form.Item name="limit" label="Result limit" initialValue={10}><InputNumber placeholder="10" /></Form.Item>
+        <Button type="primary" htmlType="submit">Search</Button>
       </Form>
       {mutation.data && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -617,7 +617,7 @@ function ComplexFilter() {
       <Row gutter={16}>
         <Col span={24}>
           <EnginePanel
-            title="结果"
+            title="Results"
             loading={mutation.isPending}
             error={mutation.isError ? mutation.error : null}
             results={(mutation.data?.data?.results || [])}
@@ -665,20 +665,20 @@ function PopularCombos() {
   return (
     <>
       <Form layout="inline" style={{ marginBottom: 12 }}>
-        <Form.Item label="组合人数">
-          <Select value={size} onChange={setSize} options={[{value:2,label:'2人'},{value:3,label:'3人'}]} />
+        <Form.Item label="Group size">
+          <Select value={size} onChange={setSize} options={[{value:2,label:'2 people'},{value:3,label:'3 people'}]} />
         </Form.Item>
-        <Form.Item label="类别" style={{ width: 240 }}>
+        <Form.Item label="Genre" style={{ width: 240 }}>
           <Select 
             allowClear 
-            placeholder="选择类别" 
+            placeholder="Select a genre"
             value={genre} 
             onChange={setGenre} 
             options={genreOptions} 
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       {!!searchParams && (
@@ -707,13 +707,13 @@ function PopularCombos() {
                   {comboData.map((item, i) => (
                     <div key={i} style={{ marginBottom: 16, borderBottom: '1px solid #f0f0f0', paddingBottom: 8 }}>
                       <div style={{ fontWeight: 'bold', marginBottom: 4 }}>
-                        组合: {item.combo.join(' + ')}
+                        Group: {item.combo.join(' + ')}
                       </div>
                       <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
-                        总评论数: {item.review_count_total}
+                        Total reviews: {item.review_count_total}
                       </div>
                       <div style={{ fontSize: 12 }}>
-                        <div style={{ marginBottom: 4 }}>关联电影:</div>
+                        <div style={{ marginBottom: 4 }}>Related movies:</div>
                         {(item.movies || []).map((m, j) => (
                           <div key={j} style={{ paddingLeft: 8, marginBottom: 4 }}>
                             • <span style={{ fontWeight: 500 }} title={m.title}>{m.title}</span>
@@ -745,8 +745,8 @@ export default function Dashboard() {
     <div>
       <div className="hero">
         <div>
-          <div className="hero-title">电影数据分析与性能对比</div>
-          <div className="hero-sub">并发对比 PostgreSQL、Spark、Neo4j 的查询结果与耗时</div>
+          <div className="hero-title">Movie Analytics and Performance Comparison</div>
+          <div className="hero-sub">Compare query results and execution times across PostgreSQL, Spark, and Neo4j</div>
         </div>
       </div>
       <Tabs 
@@ -754,15 +754,15 @@ export default function Dashboard() {
         onChange={setActiveKey}
         destroyInactiveTabPane={true} // Destroy inactive tabs to cancel queries
         items={[
-        { key: 'time', label: '时间统计', children: <TimeStats /> },
-        { key: 'genres', label: '类别统计', children: <GenresStats /> },
-        { key: 'high', label: '高评分', children: <HighRatedStats /> },
-        { key: 'collab', label: '合作组合', children: <CollaborationsStats /> },
-        { key: 'versions', label: '电影版本', children: <VersionsStats /> },
-        { key: 'director', label: '导演作品', children: <DirectorStats /> },
-        { key: 'actor', label: '演员查询', children: <ActorStats /> },
-        { key: 'complex', label: '组合筛选', children: <ComplexFilter /> },
-        { key: 'popular', label: '最受关注组合', children: <PopularCombos /> }
+        { key: 'time', label: 'Movies by Time', children: <TimeStats /> },
+        { key: 'genres', label: 'Genres', children: <GenresStats /> },
+        { key: 'high', label: 'Highly Rated', children: <HighRatedStats /> },
+        { key: 'collab', label: 'Collaborations', children: <CollaborationsStats /> },
+        { key: 'versions', label: 'Movie Versions', children: <VersionsStats /> },
+        { key: 'director', label: 'Director Works', children: <DirectorStats /> },
+        { key: 'actor', label: 'Actor Works', children: <ActorStats /> },
+        { key: 'complex', label: 'Advanced Filter', children: <ComplexFilter /> },
+        { key: 'popular', label: 'Popular Groups', children: <PopularCombos /> }
       ]} />
     </div>
   )

@@ -44,25 +44,25 @@ export default function Lineage() {
     const nodes: GraphNode[] = []
     const links: GraphLink[] = []
     
-    // 构造中心节点 (Merged Entity)
+    // Build the merged movie node
     const centerId = 'merged_center'
-    const centerTitle = d?.merged_movie?.title || '合并后实体'
+    const centerTitle = d?.merged_movie?.title || 'Merged movie'
     
     if (d?.merged_movie) {
       nodes.push({
         id: centerId,
-        name: centerId, // ECharts 使用 name 作为唯一标识（或id）
-        value: centerTitle, // 用于 label 显示
+        name: centerId, // ECharts uses name as a unique identifier
+        value: centerTitle, // Displayed as the node label
         category: 0,
         symbolSize: 60,
         label: { show: true, formatter: '{c}' }
       })
     }
     
-    // 构造来源节点 (Source Nodes)
+    // Build source nodes
     (d?.source_nodes || []).forEach((s: SourceNode, index: number) => {
       const sourceId = `source_${index}`
-      const sourceTitle = s.title_on_page || `来源 ${index + 1}`
+      const sourceTitle = s.title_on_page || `Source ${index + 1}`
       
       nodes.push({
         id: sourceId,
@@ -83,7 +83,7 @@ export default function Lineage() {
   })()
 
   const option = {
-    title: { text: '血缘关系图' },
+    title: { text: 'Lineage Graph' },
     tooltip: {
       formatter: (params: TooltipParams) => {
         if (params.dataType === 'node') {
@@ -92,7 +92,7 @@ export default function Lineage() {
         return ''
       }
     },
-    legend: [{ data: ['合并后','来源'] }],
+    legend: [{ data: ['Merged movie','Source'] }],
     series: [{
       type: 'graph',
       layout: 'force',
@@ -100,7 +100,7 @@ export default function Lineage() {
       label: { show: true },
       data: graphData.nodes,
       links: graphData.links,
-      categories: [{ name: '合并后' }, { name: '来源' }],
+      categories: [{ name: 'Merged movie' }, { name: 'Source' }],
       force: { repulsion: 1000, edgeLength: 100 }
     }]
   }
@@ -109,55 +109,55 @@ export default function Lineage() {
     <div>
       <div className="hero">
         <div>
-          <div className="hero-title">数据血缘追踪</div>
-          <div className="hero-sub">展示电影合并前的来源与规则</div>
+          <div className="hero-title">Movie Data Lineage</div>
+          <div className="hero-sub">Explore the source records and merge rules behind each movie</div>
         </div>
       </div>
       <Form layout="inline" style={{ marginTop: 16, marginBottom: 16 }}>
-        <Form.Item label="电影ID">
+        <Form.Item label="Movie ID">
           <Input 
             value={movieId} 
             onChange={e => setMovieId(e.target.value)} 
             onPressEnter={handleSearch}
-            placeholder="输入后点击查询"
+            placeholder="Enter a value, then search"
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
+          <Button type="primary" onClick={handleSearch}>Search</Button>
         </Form.Item>
       </Form>
       
-      {detail.isLoading && <div style={{ textAlign: 'center', padding: 20 }}>加载中...</div>}
-      {detail.isError && <div style={{ textAlign: 'center', padding: 20, color: 'red' }}>查询出错，请检查ID是否正确</div>}
+      {detail.isLoading && <div style={{ textAlign: 'center', padding: 20 }}>Loading...</div>}
+      {detail.isError && <div style={{ textAlign: 'center', padding: 20, color: 'red' }}>Query failed. Check the movie ID and try again.</div>}
       
       {!detail.isLoading && !detail.isError && d && (
         <Row gutter={[16, 16]}>
-          {/* 左侧：关系图 */}
+          {/* Lineage graph */}
           <Col span={14}>
-            <Card className="card" title="数据来源合并关系图">
+            <Card className="card" title="Source Merge Graph">
               <div style={{ marginBottom: 16, color: '#666' }}>
-                展示哪些原始网页被合并为当前的电影实体。中心节点为合并后的结果，周边节点为原始数据来源。
+                See which source pages were merged into this movie. The center node is the merged record; surrounding nodes are source pages.
               </div>
               <ReactECharts option={option} style={{ height: 500 }} />
             </Card>
           </Col>
           
-          {/* 右侧：详细信息 */}
+          {/* Details */}
           <Col span={10}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* 合并后电影详情 */}
-              <Card className="card" title="合并后数据 (Merged Data)">
+              {/* Merged movie details */}
+              <Card className="card" title="Merged Movie">
                 <Descriptions column={1} size="small" bordered>
                   <Descriptions.Item label="ID">{d.merged_movie.id}</Descriptions.Item>
-                  <Descriptions.Item label="标题">{d.merged_movie.title}</Descriptions.Item>
-                  <Descriptions.Item label="导演">{d.merged_movie.director}</Descriptions.Item>
-                  <Descriptions.Item label="演员">{d.merged_movie.actor}</Descriptions.Item>
-                  <Descriptions.Item label="上映日期">{d.merged_movie.releaseDate}</Descriptions.Item>
+                  <Descriptions.Item label="Title">{d.merged_movie.title}</Descriptions.Item>
+                  <Descriptions.Item label="Director">{d.merged_movie.director}</Descriptions.Item>
+                  <Descriptions.Item label="Actor">{d.merged_movie.actor}</Descriptions.Item>
+                  <Descriptions.Item label="Release date">{d.merged_movie.releaseDate}</Descriptions.Item>
                 </Descriptions>
               </Card>
 
-              {/* 来源网页列表 */}
-              <Card className="card" title="来源网页 (Source Pages)">
+              {/* Source pages */}
+              <Card className="card" title="Source Pages">
                 <List
                   size="small"
                   dataSource={d.source_nodes as SourceNode[]}
@@ -166,26 +166,28 @@ export default function Lineage() {
                       <div style={{ wordBreak: 'break-all' }}>
                         <div style={{ fontWeight: 500 }}>{item.title_on_page}</div>
                         <div style={{ fontSize: 12, color: '#666' }}>ID: {item.source_id}</div>
-                        <a href={item.url} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>{item.url}</a>
+                        {/^https?:\/\//i.test(item.url) && (
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12 }}>{item.url}</a>
+                        )}
                       </div>
                     </List.Item>
                   )}
                 />
               </Card>
 
-              {/* 其他来源追踪 */}
-              <Card className="card" title="字段级溯源 (Field Lineage)">
+              {/* Field provenance */}
+              <Card className="card" title="Field Lineage">
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontWeight: 500, marginBottom: 4 }}>上映日期来源:</div>
+                  <div style={{ fontWeight: 500, marginBottom: 4 }}>Release date source:</div>
                   {d.source_releaseDate && d.source_releaseDate.length > 0 ? (
                     (d.source_releaseDate as ReleaseDateSource[]).map((src, i) => (
                       <Tag key={i} color="blue">{src.source}</Tag>
                     ))
-                  ) : <span style={{ color: '#999' }}>无特定来源记录</span>}
+                  ) : <span style={{ color: '#999' }}>No source recorded</span>}
                 </div>
                 
                 <div>
-                  <div style={{ fontWeight: 500, marginBottom: 4 }}>人名归一化记录:</div>
+                  <div style={{ fontWeight: 500, marginBottom: 4 }}>Name normalization:</div>
                   {d.source_personName && d.source_personName.length > 0 ? (
                     <List
                       size="small"
@@ -198,7 +200,7 @@ export default function Lineage() {
                         </List.Item>
                       )}
                     />
-                  ) : <span style={{ color: '#999' }}>无归一化记录</span>}
+                  ) : <span style={{ color: '#999' }}>No normalization recorded</span>}
                 </div>
               </Card>
             </div>

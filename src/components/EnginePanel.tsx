@@ -29,8 +29,8 @@ export default function EnginePanel(props: {
   }
   return (
     <Card className="card" style={{ minWidth: 0 }} bodyStyle={{ padding: 12, overflow: 'hidden' }}>
-      {loading && <div style={{ position: 'absolute', zIndex: 10, background: 'rgba(255,255,255,0.8)', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>加载中</div>}
-      {error ? <div>错误</div> : (
+      {loading && <div style={{ position: 'absolute', zIndex: 10, background: 'rgba(255,255,255,0.8)', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading</div>}
+      {error ? <div>Error</div> : (
         !hideChart && (
           <ReactECharts 
             option={option} 
@@ -42,7 +42,7 @@ export default function EnginePanel(props: {
       {!loading && !error && movies && movies.length > 0 && (
         <List
           size="small"
-          header={<div style={{ fontWeight: 600 }}>电影列表 {totalCount !== undefined ? `(显示 ${movies.length} 条 / 共 ${totalCount} 条)` : `(${movies.length})`}</div>}
+          header={<div style={{ fontWeight: 600 }}>Movie List {totalCount !== undefined ? `(Showing ${movies.length} of ${totalCount})` : `(${movies.length})`}</div>}
           bordered
           dataSource={movies}
           renderItem={(item: MovieItem) => (
@@ -53,11 +53,11 @@ export default function EnginePanel(props: {
                 </div>
                 {item.positive_review_count !== undefined && item.positive_review_count !== null && (
                   <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>
-                    正向评论: {item.positive_review_count} 条
+                    Positive reviews: {item.positive_review_count}
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
-                  {(item.urls || []).slice(0, 2).map((u, i) => (
+                  {(item.urls || []).filter(u => /^https?:\/\//i.test(u)).slice(0, 2).map((u, i) => (
                     <a key={i} href={u} target="_blank" rel="noreferrer" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 120, display: 'inline-block' }} title={u}>{u}</a>
                   ))}
                 </div>

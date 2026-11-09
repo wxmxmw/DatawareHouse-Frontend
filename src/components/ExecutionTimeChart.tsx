@@ -10,7 +10,7 @@ interface ChartResult {
 
 export default function ExecutionTimeChart({ results, engines }: { results: ChartResult[], engines: readonly string[] }) {
   const option = {
-    title: { text: '查询耗时对比 (ms)' },
+    title: { text: 'Query Execution Time Comparison (ms)' },
     tooltip: { trigger: 'axis' },
     xAxis: { type: 'category', data: engines },
     yAxis: { type: 'value', name: 'ms' },
@@ -22,7 +22,7 @@ export default function ExecutionTimeChart({ results, engines }: { results: Char
     }]
   }
 
-  // 只有当至少有一个结果有耗时数据时才显示
+  // Show the chart only when at least one result includes timing data
   const hasData = results.some(r => r.data?.data?.execution_time_ms !== undefined)
 
   if (!hasData) return null

@@ -15,23 +15,23 @@ export default function Logs() {
   }
   const columns: Array<{ title: string, dataIndex: keyof LogRow }> = [
     { title: 'ID', dataIndex: 'id' },
-    { title: '类型', dataIndex: 'query_type' },
-    { title: 'PG耗时', dataIndex: 'execution_time_pg' },
-    { title: 'Spark耗时', dataIndex: 'execution_time_spark' },
-    { title: 'Neo4j耗时', dataIndex: 'execution_time_neo4j' },
-    { title: '时间', dataIndex: 'timestamp' }
+    { title: 'Type', dataIndex: 'query_type' },
+    { title: 'PG time (ms)', dataIndex: 'execution_time_pg' },
+    { title: 'Spark time (ms)', dataIndex: 'execution_time_spark' },
+    { title: 'Neo4j time (ms)', dataIndex: 'execution_time_neo4j' },
+    { title: 'Time', dataIndex: 'timestamp' }
   ]
   return (
     <div>
       <div className="hero">
         <div>
-          <div className="hero-title">查询历史日志</div>
-          <div className="hero-sub">记录查询参数与三引擎的执行耗时</div>
+          <div className="hero-title">Query History</div>
+          <div className="hero-sub">Query history and execution times for the three engines</div>
         </div>
       </div>
       <Card className="card" style={{ marginTop: 16 }}>
-        {isLoading && <div>加载中</div>}
-        {isError && <div>错误</div>}
+        {isLoading && <div>Loading</div>}
+        {isError && <div>Error</div>}
         {!isLoading && !isError && (
           <Table<LogRow>
             rowKey="id"

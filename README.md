@@ -1,94 +1,46 @@
-# DataWareHouse-frontEnd
+# Movie Data Warehouse Frontend
 
-Amazon 电影数据仓库系统前端项目，基于 React + TypeScript + Vite + Ant Design + ECharts 开发。
+A course project for exploring an Amazon movie data warehouse. The React dashboard compares results and query times from PostgreSQL, Spark, and Neo4j. It also includes movie lineage, a static ETL report, and query history views.
 
-## 项目结构
+## Stack
 
-```text
-DataWareHouse-frontEnd/
-├── src/
-│   ├── api/                # API 接口定义
-│   │   ├── client.ts       # Axios 实例
-│   │   ├── stats.ts        # 统计分析接口
-│   │   ├── lineage.ts      # 数据血缘接口
-│   │   ├── system.ts       # 系统日志接口
-│   │   └── governance.ts   # 数据治理接口 (预留)
-│   ├── components/         # 公共组件
-│   │   ├── EnginePanel.tsx # 引擎结果展示面板
-│   │   └── ExecutionTimeChart.tsx # 耗时对比图表
-│   ├── pages/              # 页面组件
-│   │   ├── Dashboard.tsx   # 仪表盘 (核心统计功能)
-│   │   ├── Lineage.tsx     # 血缘分析页
-│   │   ├── Logs.tsx        # 系统日志页
-│   │   ├── Governance.tsx  # 数据治理页 (预留)
-│   │   ├── ETLSummary.tsx  # ETL 统计摘要
-│   │   └── Models.tsx      # 模型管理 (预留)
-│   ├── App.tsx             # 路由配置
-│   └── main.tsx            # 入口文件
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
+React 18, TypeScript, Vite 8, Ant Design 5, TanStack Query, Axios, and ECharts 6.
+
+## Run locally
+
+Requires Node.js 20.19+ or 22.12+ and a compatible backend. The backend is a separate project and is not included here.
+
+```bash
+npm ci
+cp .env.example .env.local
+npm run dev
 ```
 
-## 接口实现情况
+Set `API_PROXY_TARGET` in `.env.local` to the backend origin if it does not run at `http://localhost:8080`. Open the URL printed by Vite, usually `http://localhost:5173`.
 
-本项目已实现 `Amazon 电影数据仓库系统 API 接口文档 v1.0` 中要求的所有接口，并预留了部分扩展接口。
+The app sends requests to `/api` by default. `VITE_API_BASE_URL` may change that public browser-side path. Values prefixed with `VITE_` are exposed in the client bundle, so they must never contain passwords, tokens, or private service addresses. A production host needs its own `/api` reverse proxy or an explicitly configured public API URL with appropriate CORS settings.
 
-### 1. 统计分析与性能对比 (Stats) - [文档 2.1 - 2.9]
+## Available views
 
-所有接口均支持 `pg`, `spark`, `neo4j` 引擎切换与性能对比。
+| View | Features |
+| --- | --- |
+| Statistics and Comparison | Movies by time, genres, ratings, collaborations, versions, director and actor works, advanced filtering, and popular groups |
+| Data Lineage | Movie source pages, merged movie details, and field provenance |
+| ETL Overview | Static figures from the course ETL report, including cleaning and enrichment charts |
+| System Logs | Query history returned by the backend |
 
-| 接口描述           | API 路径                  | 对应前端方法          | 状态      |
-| :----------------- | :------------------------ | :-------------------- | :-------- |
-| 按时间查询电影数量 | `/stats/movies-by-time` | `getMoviesByTime`   | ✅ 已实现 |
-| 电影版本统计       | `/stats/movie-versions` | `getMovieVersions`  | ✅ 已实现 |
-| 导演作品统计       | `/stats/director-works` | `getDirectorWorks`  | ✅ 已实现 |
-| 演员参演统计       | `/stats/actor-works`    | `getActorWorks`     | ✅ 已实现 |
-| 经常合作组合       | `/stats/collaborations` | `getCollaborations` | ✅ 已实现 |
-| 电影类别统计       | `/stats/genres`         | `getGenres`         | ✅ 已实现 |
-| 高评分电影查询     | `/stats/high-rated`     | `getHighRated`      | ✅ 已实现 |
-| 多条件组合筛选     | `/stats/complex-filter` | `postComplexFilter` | ✅ 已实现 |
-| 最受关注组合排行   | `/stats/popular-combos` | `getPopularCombos`  | ✅ 已实现 |
+The statistics view calls `/stats/*` endpoints with `pg`, `spark`, or `neo4j` engine parameters. The lineage view calls `/lineage/movie/{movieId}`; the logs view calls `/system/logs`. The ETL overview uses report figures stored in the frontend, rather than live API data. Features depend on the backend returning the expected response shapes.
 
-### 2. 数据血缘 (Lineage) - [文档 3.1 - 3.2]
+## Checks
 
-| 接口描述     | API 路径                     | 对应前端方法          | 状态      |
-| :----------- | :--------------------------- | :-------------------- | :-------- |
-| 电影血缘追踪 | `/lineage/movie/{movieId}` | `getLineageMovie`   | ✅ 已实现 |
-| 溯源总览统计 | `/lineage/summary`         | `getLineageSummary` | ✅ 已实现 |
+```bash
+npm run typecheck
+npm run build
+```
 
-### 3. 系统日志 (System) - [文档 4.1]
+## Before publishing
 
-| 接口描述     | API 路径         | 对应前端方法 | 状态      |
-| :----------- | :--------------- | :----------- | :-------- |
-| 查询历史日志 | `/system/logs` | `getLogs`  | ✅ 已实现 |
-
-### 4. 扩展/预留接口 (Placeholder)
-
-以下接口未在 v1.0 文档中定义，目前作为占位符以支持后续功能扩展：
-
-| 模块       | API 路径                       | 描述         |
-| :--------- | :----------------------------- | :----------- |
-| System     | `/system/models`             | 模型管理接口 |
-| Governance | `/governance/quality-report` | 数据质量报告 |
-| Governance | `/governance/metadata`       | 元数据管理   |
-
-## 运行方式
-
-1. **安装依赖**
-
-   ```bash
-   npm install
-   ```
-2. **启动开发服务器**
-
-   ```bash
-   npm run dev
-   ```
-   启动后访问 `http://localhost:5173`。
-3. **构建生产版本（可选）**
-
-   ```bash
-   npm run build
-   ```
+- Review `.env.local`, local data, screenshots, and backend configuration before committing. `.env*` files are ignored except `.env.example`.
+- Check all Git history, branches, tags, and commit author metadata. Earlier commits in this project contained a hardcoded public backend address; changing `vite.config.ts` does not remove it from Git history. Publish a fresh repository from the cleaned files if that address must be absent from public history, or coordinate a history rewrite before making an existing repository public.
+- Check that the backend enforces its own access controls, especially for `/system/logs` and any endpoints that expose underlying data. Frontend configuration does not secure a backend.
+- Confirm that you have the rights to publish any data, project documentation, or third-party assets you add. Add a license if you intend to permit reuse.
